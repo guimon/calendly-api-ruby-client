@@ -12,12 +12,14 @@ module Calendly
     AUTH_API_HOST = 'https://auth.calendly.com'
 
     # @param [String] token a Calendly's access token.
-    # @param [Calendly::Configuration] configuration.
+    # @param [String] token a Calendly's refresh token.
+    # @param [Datetime] when the access token expires
     # @raise [Calendly::Error] if the token is empty.
-    def initialize(token = nil, refresh_token = nil)
+    def initialize(token = nil, refresh_token = nil, expires_at = nil)
       @config = Calendly.configuration
       @token = token || Calendly.configuration.token
       @refresh_token = refresh_token || Calendly.configuration.token
+      @expires_at = expires_at || @config.token_expires_at
 
       check_not_empty @token, 'token'
       check_token
@@ -36,7 +38,7 @@ module Calendly
       @access_token = OAuth2::AccessToken.new(
         client, @token,
         refresh_token: @refresh_token,
-        expires_at: @config.token_expires_at
+        expires_at: @expires_at
       )
     end
 
